@@ -126,12 +126,13 @@ impl MainMenu {
     }
 
     fn handle_buttons(
+        mut game_state: ResMut<State<GameState>>,
         mut events: EventWriter<AppExit>,
         butts: Query<(&MainMenuButton, &Interaction), Changed<Interaction>>,
     ) {
         for butt in butts.iter() {
             match butt {
-                (MainMenuButton::Play, Interaction::Clicked) => println!("Play!"),
+                (MainMenuButton::Play, Interaction::Clicked) => game_state.set(GameState::Game).unwrap(),
                 (MainMenuButton::Play, Interaction::Hovered) => {}
                 (MainMenuButton::Exit, Interaction::Clicked) => events.send(AppExit),
                 (MainMenuButton::Exit, Interaction::Hovered) => {}

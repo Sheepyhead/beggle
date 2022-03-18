@@ -25,4 +25,5 @@ fn setup_camera(mut commands: Commands, mut color: ResMut<ClearColor>) {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 enum GameState {
     MainMenu,
+    Game,
 }
