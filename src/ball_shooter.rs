@@ -50,11 +50,11 @@ impl BallShooter {
 
     fn turn_toward_cursor(
         windows: Res<Windows>,
-        mut shooters: Query<&mut Transform, With<BallShooter>>,
+        mut shooters: Query<(&mut Transform, &GlobalTransform), With<BallShooterBase>>,
         camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     ) {
         if let Some(window) = windows.get_primary() {
-            for mut shooter in shooters.iter_mut() {
+            for (mut local, global) in shooters.iter_mut() {
                 if let Some(cursor_position) = window.cursor_position() {
                     let (camera, camera_position) = camera.single();
                     // get the size of the window
@@ -69,13 +69,14 @@ impl BallShooter {
 
                     // use it to convert ndc to world-space coordinates
                     let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).xy();
-                    println!("Window pos: {cursor_position}, world pos: {world_pos}");
 
+                    // Calculate the angle of rotation between the transform and the mouse cursor position
                     let angle = f32::atan2(
-                        world_pos.x - shooter.translation.x,
-                        world_pos.y - shooter.translation.y,
-                    );
-                    shooter.rotation = Quat::from_rotation_z(angle);
+                        world_pos.y - global.translation.y,
+                        world_pos.x - global.translation.x,
+                    ) + PI / 2.0;
+                    
+                    local.rotation = Quat::from_rotation_z(angle);
                 }
             }
         }
