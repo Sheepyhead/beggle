@@ -1,7 +1,11 @@
-use std::f32::consts::PI;
-
 use crate::{GameState, MainCamera};
-use bevy::{math::Vec3Swizzles, prelude::*};
+use bevy::{
+    input::{mouse::MouseButtonInput, ElementState},
+    math::Vec3Swizzles,
+    prelude::*,
+};
+use bevy_rapier2d::prelude::*;
+use std::f32::consts::PI;
 
 #[derive(Component)]
 pub(crate) struct BallShooter;
@@ -10,7 +14,9 @@ impl Plugin for BallShooter {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Game).with_system(Self::spawn))
             .add_system_set(
-                SystemSet::on_update(GameState::Game).with_system(Self::turn_toward_cursor),
+                SystemSet::on_update(GameState::Game)
+                    .with_system(Self::turn_toward_cursor)
+                    .with_system(Self::shoot_ball),
             )
             .add_system_set(SystemSet::on_exit(GameState::Game).with_system(Self::despawn));
     }
@@ -75,10 +81,56 @@ impl BallShooter {
                         world_pos.y - global.translation.y,
                         world_pos.x - global.translation.x,
                     ) + PI / 2.0;
-                    
+
                     local.rotation = Quat::from_rotation_z(angle);
                 }
             }
         }
     }
+
+    fn shoot_ball(
+        mut commands: Commands,
+        mut events: EventReader<MouseButtonInput>,
+        shooters: Query<&mut GlobalTransform, With<BallShooter>>,
+    ) {
+        for event in events.iter() {
+            if let MouseButtonInput {
+                button: MouseButton::Left,
+                state: ElementState::Pressed,
+            } = event
+            {
+                for shooter in shooters.iter() {
+                    let angle = shooter.rotation.to_euler(EulerRot::XYZ).2 - PI / 2.0;
+                    commands
+                        .spawn_bundle(RigidBodyBundle {
+                            position: shooter.translation.xyz().into(),
+                            mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
+                            forces: RigidBodyForces {
+                                gravity_scale: 10.0,
+                                ..RigidBodyForces::default()
+                            }
+                            .into(),
+                            velocity: RigidBodyVelocity {
+                                linvel: (Vec2::new(angle.cos(), angle.sin()) * 1000.0).into(),
+                                ..RigidBodyVelocity::default()
+                            }
+                            .into(),
+                            ..RigidBodyBundle::default()
+                        })
+                        .insert_bundle(ColliderBundle {
+                            shape: ColliderShape::ball(7.5).into(),
+                            ..ColliderBundle::default()
+                        })
+                        .insert_bundle((
+                            Ball,
+                            RigidBodyPositionSync::Discrete,
+                            ColliderDebugRender { color: Color::RED },
+                        ));
+                }
+            }
+        }
+    }
 }
+
+#[derive(Component)]
+struct Ball;

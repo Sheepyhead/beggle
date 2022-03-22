@@ -12,6 +12,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(EditorPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierRenderPlugin)
         .add_plugin(MainMenu)
         .add_plugin(BallShooter)
         .add_state(GameState::MainMenu)
@@ -23,7 +24,9 @@ fn main() {
 struct MainCamera;
 
 fn setup_camera(mut commands: Commands, mut color: ResMut<ClearColor>) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d()).insert(MainCamera);
+    commands
+        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .insert(MainCamera);
     commands.spawn_bundle(UiCameraBundle::default());
     color.0 = Color::BLACK;
 }
