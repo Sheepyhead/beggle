@@ -7,11 +7,11 @@ pub(crate) struct MainMenu;
 
 impl Plugin for MainMenu {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::MainMenu).with_system(MainMenu::spawn))
+        app.add_system_set(SystemSet::on_enter(GameState::MainMenu).with_system(Self::spawn))
             .add_system_set(
-                SystemSet::on_update(GameState::MainMenu).with_system(MainMenu::handle_buttons),
+                SystemSet::on_update(GameState::MainMenu).with_system(Self::handle_buttons),
             )
-            .add_system_set(SystemSet::on_exit(GameState::MainMenu).with_system(MainMenu::despawn));
+            .add_system_set(SystemSet::on_exit(GameState::MainMenu).with_system(Self::despawn));
     }
 }
 
