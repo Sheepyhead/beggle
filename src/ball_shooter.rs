@@ -1,4 +1,4 @@
-use crate::{GameState, MainCamera};
+use crate::{workarounds::clear_mouse_input_events, GameState, MainCamera};
 use bevy::{
     input::{mouse::MouseButtonInput, ElementState},
     math::Vec3Swizzles,
@@ -12,13 +12,17 @@ pub(crate) struct BallShooter;
 
 impl Plugin for BallShooter {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Game).with_system(Self::spawn))
-            .add_system_set(
-                SystemSet::on_update(GameState::Game)
-                    .with_system(Self::turn_toward_cursor)
-                    .with_system(Self::shoot_ball),
-            )
-            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(Self::despawn));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Game)
+                .with_system(Self::spawn)
+                .with_system(clear_mouse_input_events),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Game)
+                .with_system(Self::turn_toward_cursor)
+                .with_system(Self::shoot_ball),
+        )
+        .add_system_set(SystemSet::on_exit(GameState::Game).with_system(Self::despawn));
     }
 }
 
@@ -106,7 +110,7 @@ impl BallShooter {
                             position: shooter.translation.xyz().into(),
                             mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
                             forces: RigidBodyForces {
-                                gravity_scale: 10.0,
+                                gravity_scale: 50.0,
                                 ..RigidBodyForces::default()
                             }
                             .into(),
@@ -119,6 +123,12 @@ impl BallShooter {
                         })
                         .insert_bundle(ColliderBundle {
                             shape: ColliderShape::ball(7.5).into(),
+                            material: ColliderMaterial {
+                                friction: 0.0,
+                                friction_combine_rule: CoefficientCombineRule::Min,
+                                ..ColliderMaterial::default()
+                            }
+                            .into(),
                             ..ColliderBundle::default()
                         })
                         .insert_bundle((
