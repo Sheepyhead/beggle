@@ -2,7 +2,11 @@ use std::fmt;
 
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::{
+    ball_shooter::{Ball, BallShooter},
+    gui::Hud,
+    GameState,
+};
 
 pub mod level1;
 
@@ -10,12 +14,22 @@ pub struct Levels;
 
 impl Plugin for Levels {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Game).with_system(spawn_level));
+        app.add_system_set(SystemSet::on_enter(GameState::Game).with_system(spawn_level))
+            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(despawn_level));
     }
 }
 
 fn spawn_level(mut commands: Commands, level: Res<CurrentLevel>) {
     (level.spawn)(&mut commands);
+}
+
+fn despawn_level(
+    mut commands: Commands,
+    entities_to_despawn: Query<Entity, Or<(With<Peg>, With<Ball>, With<Hud>, With<BallShooter>)>>,
+) {
+    for entity in entities_to_despawn.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }
 
 #[derive(Component)]

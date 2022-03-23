@@ -149,7 +149,7 @@ impl BallShooter {
 }
 
 #[derive(Component)]
-struct Ball;
+pub(crate) struct Ball;
 
 impl Ball {
     fn despawn(
@@ -157,7 +157,6 @@ impl Ball {
         balls: Query<(Entity, &RigidBodyPositionComponent), With<Ball>>,
     ) {
         for (ball, pos) in balls.iter() {
-            println!("{}", pos.position);
             if pos.position.translation.y <= -360.0 {
                 commands.entity(ball).despawn_recursive();
             }

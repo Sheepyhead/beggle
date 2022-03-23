@@ -1,12 +1,16 @@
+#![allow(clippy::type_complexity)]
+
 use ball_shooter::BallShooter;
 use bevy::prelude::*;
 use bevy_editor_pls::EditorPlugin;
 use bevy_rapier2d::prelude::*;
+use game_over::GameOver;
 use gui::Gui;
 use levels::Levels;
 use main_menu::MainMenu;
 
 mod ball_shooter;
+mod game_over;
 mod gui;
 mod levels;
 mod main_menu;
@@ -23,6 +27,7 @@ fn main() {
         .add_plugin(BallShooter)
         .add_plugin(Levels)
         .add_plugin(Gui)
+        .add_plugin(GameOver)
         .add_state(GameState::MainMenu)
         .add_startup_system(setup_camera)
         .run();
@@ -43,4 +48,5 @@ fn setup_camera(mut commands: Commands, mut color: ResMut<ClearColor>) {
 enum GameState {
     MainMenu,
     Game,
+    GameOver,
 }

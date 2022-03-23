@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{levels::CurrentBalls, GameState};
+use crate::levels::CurrentBalls;
 
 pub(crate) struct Gui;
 
@@ -11,7 +11,7 @@ impl Plugin for Gui {
 }
 
 #[derive(Component)]
-enum Hud {
+pub(crate) enum Hud {
     BallsText,
 }
 
@@ -45,7 +45,9 @@ impl Gui {
                 } else {
                     for (mut text, hud) in gui.iter_mut() {
                         match hud {
-                            Hud::BallsText => text.sections[0].value = format!("Balls left: {}", *current_balls),
+                            Hud::BallsText => {
+                                text.sections[0].value = format!("Balls left: {}", *current_balls)
+                            }
                         }
                     }
                 }
