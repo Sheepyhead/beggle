@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bevy::prelude::*;
 
 use crate::GameState;
@@ -40,5 +42,11 @@ impl CurrentBalls {
 
     pub(crate) fn has_any(&self) -> bool {
         self.0 > 0
+    }
+}
+
+impl fmt::Display for CurrentBalls {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }

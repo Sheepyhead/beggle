@@ -2,10 +2,12 @@ use ball_shooter::BallShooter;
 use bevy::prelude::*;
 use bevy_editor_pls::EditorPlugin;
 use bevy_rapier2d::prelude::*;
+use gui::Gui;
 use levels::Levels;
 use main_menu::MainMenu;
 
 mod ball_shooter;
+mod gui;
 mod levels;
 mod main_menu;
 mod workarounds;
@@ -20,6 +22,7 @@ fn main() {
         .add_plugin(MainMenu)
         .add_plugin(BallShooter)
         .add_plugin(Levels)
+        .add_plugin(Gui)
         .add_state(GameState::MainMenu)
         .add_startup_system(setup_camera)
         .run();

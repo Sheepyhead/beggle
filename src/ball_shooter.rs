@@ -20,7 +20,8 @@ impl Plugin for BallShooter {
         .add_system_set(
             SystemSet::on_update(GameState::Game)
                 .with_system(Self::turn_toward_cursor)
-                .with_system(Self::shoot_ball),
+                .with_system(Self::shoot_ball)
+                .with_system(Ball::despawn),
         )
         .add_system_set(SystemSet::on_exit(GameState::Game).with_system(Self::despawn));
     }
@@ -149,3 +150,17 @@ impl BallShooter {
 
 #[derive(Component)]
 struct Ball;
+
+impl Ball {
+    fn despawn(
+        mut commands: Commands,
+        balls: Query<(Entity, &RigidBodyPositionComponent), With<Ball>>,
+    ) {
+        for (ball, pos) in balls.iter() {
+            println!("{}", pos.position);
+            if pos.position.translation.y <= -360.0 {
+                commands.entity(ball).despawn_recursive();
+            }
+        }
+    }
+}
