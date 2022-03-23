@@ -1,4 +1,4 @@
-use crate::{workarounds::clear_mouse_input_events, GameState, MainCamera};
+use crate::{levels::CurrentBalls, workarounds::clear_mouse_input_events, GameState, MainCamera};
 use bevy::{
     input::{mouse::MouseButtonInput, ElementState},
     math::Vec3Swizzles,
@@ -94,8 +94,10 @@ impl BallShooter {
 
     fn shoot_ball(
         mut commands: Commands,
+        mut current_balls: ResMut<CurrentBalls>,
         mut events: EventReader<MouseButtonInput>,
         shooters: Query<&mut GlobalTransform, With<BallShooter>>,
+        balls: Query<(), With<Ball>>,
     ) {
         for event in events.iter() {
             if let MouseButtonInput {
@@ -103,39 +105,42 @@ impl BallShooter {
                 state: ElementState::Pressed,
             } = event
             {
-                for shooter in shooters.iter() {
-                    let angle = shooter.rotation.to_euler(EulerRot::XYZ).2 - PI / 2.0;
-                    commands
-                        .spawn_bundle(RigidBodyBundle {
-                            position: shooter.translation.xyz().into(),
-                            mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
-                            forces: RigidBodyForces {
-                                gravity_scale: 50.0,
-                                ..RigidBodyForces::default()
-                            }
-                            .into(),
-                            velocity: RigidBodyVelocity {
-                                linvel: (Vec2::new(angle.cos(), angle.sin()) * 1000.0).into(),
-                                ..RigidBodyVelocity::default()
-                            }
-                            .into(),
-                            ..RigidBodyBundle::default()
-                        })
-                        .insert_bundle(ColliderBundle {
-                            shape: ColliderShape::ball(7.5).into(),
-                            material: ColliderMaterial {
-                                friction: 0.0,
-                                friction_combine_rule: CoefficientCombineRule::Min,
-                                ..ColliderMaterial::default()
-                            }
-                            .into(),
-                            ..ColliderBundle::default()
-                        })
-                        .insert_bundle((
-                            Ball,
-                            RigidBodyPositionSync::Discrete,
-                            ColliderDebugRender { color: Color::RED },
-                        ));
+                if balls.iter().count() == 0 && current_balls.has_any() {
+                    current_balls.decrement();
+                    for shooter in shooters.iter() {
+                        let angle = shooter.rotation.to_euler(EulerRot::XYZ).2 - PI / 2.0;
+                        commands
+                            .spawn_bundle(RigidBodyBundle {
+                                position: shooter.translation.xyz().into(),
+                                mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
+                                forces: RigidBodyForces {
+                                    gravity_scale: 50.0,
+                                    ..RigidBodyForces::default()
+                                }
+                                .into(),
+                                velocity: RigidBodyVelocity {
+                                    linvel: (Vec2::new(angle.cos(), angle.sin()) * 1000.0).into(),
+                                    ..RigidBodyVelocity::default()
+                                }
+                                .into(),
+                                ..RigidBodyBundle::default()
+                            })
+                            .insert_bundle(ColliderBundle {
+                                shape: ColliderShape::ball(7.5).into(),
+                                material: ColliderMaterial {
+                                    friction: 0.0,
+                                    friction_combine_rule: CoefficientCombineRule::Min,
+                                    ..ColliderMaterial::default()
+                                }
+                                .into(),
+                                ..ColliderBundle::default()
+                            })
+                            .insert_bundle((
+                                Ball,
+                                RigidBodyPositionSync::Discrete,
+                                ColliderDebugRender { color: Color::RED },
+                            ));
+                    }
                 }
             }
         }

@@ -1,7 +1,7 @@
 use bevy::{math::Vec2, prelude::*};
 use bevy_rapier2d::prelude::*;
 
-use super::{CurrentLevel, Peg};
+use super::{CurrentBalls, CurrentLevel, Peg};
 
 pub(crate) struct Level1;
 
@@ -49,6 +49,7 @@ impl From<Level1> for CurrentLevel {
                             ));
                     }
                 }
+                commands.insert_resource(CurrentBalls::default());
             },
         }
     }

@@ -22,3 +22,23 @@ struct Peg;
 pub(crate) struct CurrentLevel {
     spawn: fn(&mut Commands),
 }
+
+pub(crate) struct CurrentBalls(u32);
+
+impl Default for CurrentBalls {
+    fn default() -> Self {
+        Self(10)
+    }
+}
+
+impl CurrentBalls {
+    pub(crate) fn decrement(&mut self) {
+        if self.has_any() {
+            self.0 -= 1;
+        }
+    }
+
+    pub(crate) fn has_any(&self) -> bool {
+        self.0 > 0
+    }
+}
