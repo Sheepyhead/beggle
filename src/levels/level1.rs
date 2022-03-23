@@ -41,7 +41,7 @@ impl From<Level1> for CurrentLevel {
                                 ..RigidBodyBundle::default()
                             })
                             .insert_bundle((
-                                Peg,
+                                Peg::NotHit,
                                 RigidBodyPositionSync::Discrete,
                                 ColliderDebugRender {
                                     color: Color::YELLOW,

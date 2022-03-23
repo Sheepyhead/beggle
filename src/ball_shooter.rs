@@ -134,6 +134,7 @@ impl BallShooter {
                                     ..ColliderMaterial::default()
                                 }
                                 .into(),
+                                flags: ActiveEvents::CONTACT_EVENTS.into(),
                                 ..ColliderBundle::default()
                             })
                             .insert_bundle((
