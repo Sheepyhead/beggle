@@ -22,7 +22,8 @@ impl Plugin for Levels {
                     .with_system(Peg::hit)
                     .with_system(Peg::recolor_on_hit),
             )
-            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(despawn_level));
+            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(despawn_level))
+            .add_system_set(SystemSet::on_exit(LevelState::Dropping).with_system(Peg::despawn));
     }
 }
 
@@ -67,6 +68,14 @@ impl Peg {
             render.color = match peg {
                 Peg::NotHit => Color::YELLOW,
                 Peg::Hit => Color::GREEN,
+            }
+        }
+    }
+
+    fn despawn(mut commands: Commands, pegs: Query<(Entity, &Peg)>) {
+        for (entity, peg) in pegs.iter() {
+            if let Peg::Hit = peg {
+                commands.entity(entity).despawn_recursive();
             }
         }
     }
