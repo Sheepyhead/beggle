@@ -41,10 +41,30 @@ fn despawn_level(
     }
 }
 
-#[derive(Component, Clone, Copy)]
-enum Peg {
+#[derive(Clone, Copy)]
+pub enum PegStatus {
     NotHit,
     Hit,
+}
+
+#[derive(Clone, Copy)]
+pub enum PegType {
+    Basic,
+}
+
+#[derive(Component)]
+pub struct Peg {
+    pub status: PegStatus,
+    pub typ: PegType,
+}
+
+impl Default for Peg {
+    fn default() -> Self {
+        Self {
+            status: PegStatus::NotHit,
+            typ: PegType::Basic,
+        }
+    }
 }
 
 impl Peg {
@@ -56,8 +76,8 @@ impl Peg {
                     peg = pegs.get_mut(h2.entity());
                 }
                 if let Ok(mut peg) = peg {
-                    if let Peg::NotHit = *peg {
-                        *peg = Peg::Hit;
+                    if let PegStatus::NotHit = peg.status {
+                        peg.status = PegStatus::Hit;
                     }
                 }
             }
@@ -66,16 +86,16 @@ impl Peg {
 
     fn recolor_on_hit(mut pegs: Query<(&Peg, &mut ColliderDebugRender), Changed<Peg>>) {
         for (peg, mut render) in pegs.iter_mut() {
-            render.color = match peg {
-                Peg::NotHit => Color::YELLOW,
-                Peg::Hit => Color::GREEN,
+            render.color = match peg.status {
+                PegStatus::NotHit => Color::YELLOW,
+                PegStatus::Hit => Color::GREEN,
             }
         }
     }
 
     fn despawn(mut commands: Commands, mut score: ResMut<Score>, pegs: Query<(Entity, &Peg)>) {
         for (entity, peg) in pegs.iter() {
-            if let Peg::Hit = peg {
+            if let PegStatus::Hit = peg.status {
                 score.points += 1;
                 commands.entity(entity).despawn_recursive();
             }
