@@ -28,6 +28,7 @@ impl Plugin for Levels {
 }
 
 fn spawn_level(mut commands: Commands, level: Res<CurrentLevel>) {
+    commands.insert_resource(Score::default());
     (level.spawn)(&mut commands);
 }
 
@@ -72,9 +73,10 @@ impl Peg {
         }
     }
 
-    fn despawn(mut commands: Commands, pegs: Query<(Entity, &Peg)>) {
+    fn despawn(mut commands: Commands, mut score: ResMut<Score>, pegs: Query<(Entity, &Peg)>) {
         for (entity, peg) in pegs.iter() {
             if let Peg::Hit = peg {
+                score.points += 1;
                 commands.entity(entity).despawn_recursive();
             }
         }
@@ -115,4 +117,9 @@ impl fmt::Display for CurrentBalls {
 pub enum LevelState {
     Aiming,
     Dropping,
+}
+
+#[derive(Default)]
+pub struct Score {
+    pub points: u64,
 }

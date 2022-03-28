@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{ball_shooter::Ball, levels::CurrentBalls, GameState};
+use crate::{
+    ball_shooter::Ball,
+    levels::{CurrentBalls, Score},
+    GameState,
+};
 
 #[derive(Component)]
 pub(crate) struct GameOver;
@@ -28,7 +32,7 @@ impl GameOver {
         }
     }
 
-    fn spawn(mut commands: Commands, ass: Res<AssetServer>) {
+    fn spawn(mut commands: Commands, ass: Res<AssetServer>, score: Res<Score>) {
         commands
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -45,7 +49,7 @@ impl GameOver {
             .with_children(|parent| {
                 parent.spawn_bundle(TextBundle {
                     text: Text::with_section(
-                        "Game Over!!",
+                        format!("Score: {}", score.points),
                         TextStyle {
                             font: ass.load("fonts/Roboto-Regular.ttf"),
                             font_size: 50.0,
