@@ -9,8 +9,11 @@ impl From<Level1> for CurrentLevel {
     fn from(_: Level1) -> Self {
         CurrentLevel {
             spawn: |commands: &mut Commands| {
+                commands.insert_resource(CurrentBalls::default());
+
                 let columns = 12;
                 let rows = 8;
+                let mut pegs = vec![];
                 for column in 0..columns {
                     for row in 0..rows {
                         let horizontal_offset = 40.0;
@@ -20,36 +23,37 @@ impl From<Level1> for CurrentLevel {
                         let y = row as f32;
                         let columns = columns as f32;
                         let rows = rows as f32;
-                        commands
-                            .spawn_bundle(ColliderBundle {
-                                shape: ColliderShape::ball(radius).into(),
-                                ..ColliderBundle::default()
-                            })
-                            .insert_bundle(RigidBodyBundle {
-                                body_type: RigidBodyType::Static.into(),
-                                position: Vec2::new(
-                                    x + (horizontal_offset * x) + radius
-                                        - (horizontal_offset * columns) / 2.0
-                                        - if row % 2 == 0 {
-                                            horizontal_offset / 2.0
-                                        } else {
-                                            0.0
-                                        },
-                                    y + (vertical_offset * y) - (vertical_offset * rows) / 2.0,
-                                )
-                                .into(),
-                                ..RigidBodyBundle::default()
-                            })
-                            .insert_bundle((
-                                Peg::default(),
-                                RigidBodyPositionSync::Discrete,
-                                ColliderDebugRender {
-                                    color: Color::YELLOW,
-                                },
-                            ));
+                        pegs.push(
+                            commands
+                                .spawn_bundle(ColliderBundle {
+                                    shape: ColliderShape::ball(radius).into(),
+                                    ..ColliderBundle::default()
+                                })
+                                .insert_bundle(RigidBodyBundle {
+                                    body_type: RigidBodyType::Static.into(),
+                                    position: Vec2::new(
+                                        x + (horizontal_offset * x) + radius
+                                            - (horizontal_offset * columns) / 2.0
+                                            - if row % 2 == 0 {
+                                                horizontal_offset / 2.0
+                                            } else {
+                                                0.0
+                                            },
+                                        y + (vertical_offset * y) - (vertical_offset * rows) / 2.0,
+                                    )
+                                    .into(),
+                                    ..RigidBodyBundle::default()
+                                })
+                                .insert_bundle((
+                                    Peg::default(),
+                                    RigidBodyPositionSync::Discrete,
+                                    ColliderDebugRender::default(),
+                                ))
+                                .id(),
+                        );
                     }
                 }
-                commands.insert_resource(CurrentBalls::default());
+                pegs
             },
         }
     }

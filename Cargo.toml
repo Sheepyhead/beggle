@@ -9,6 +9,7 @@ edition = "2021"
 bevy = "0.6.1"
 bevy_rapier2d = "0.12.1"
 bevy_editor_pls = {git = "https://github.com/jakobhellermann/bevy_editor_pls", rev = "6cdec7e"}
+fastrand = "1.7.0"
 
 [profile.dev]
 opt-level = 1

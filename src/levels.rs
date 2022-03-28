@@ -29,7 +29,23 @@ impl Plugin for Levels {
 
 fn spawn_level(mut commands: Commands, level: Res<CurrentLevel>) {
     commands.insert_resource(Score::default());
-    (level.spawn)(&mut commands);
+    let pegs = (level.spawn)(&mut commands);
+    let range = 0..pegs.len();
+    let (goal_peg_1, mut goal_peg_2) = (
+        fastrand::usize(range.clone()),
+        fastrand::usize(range.clone()),
+    );
+    while goal_peg_1 == goal_peg_2 {
+        goal_peg_2 = fastrand::usize(range.clone());
+    }
+    commands.entity(pegs[goal_peg_1]).insert(Peg {
+        typ: PegType::Goal,
+        ..Peg::default()
+    });
+    commands.entity(pegs[goal_peg_2]).insert(Peg {
+        typ: PegType::Goal,
+        ..Peg::default()
+    });
 }
 
 fn despawn_level(
@@ -50,6 +66,25 @@ pub enum PegStatus {
 #[derive(Clone, Copy)]
 pub enum PegType {
     Basic,
+    Goal,
+}
+
+impl From<PegType> for Color {
+    fn from(val: PegType) -> Self {
+        match val {
+            PegType::Basic => Color::BLUE,
+            PegType::Goal => Color::ORANGE_RED,
+        }
+    }
+}
+
+impl PegType {
+    fn points(&self) -> u32 {
+        match self {
+            PegType::Basic => 10,
+            PegType::Goal => 100,
+        }
+    }
 }
 
 #[derive(Component)]
@@ -86,9 +121,13 @@ impl Peg {
 
     fn recolor_on_hit(mut pegs: Query<(&Peg, &mut ColliderDebugRender), Changed<Peg>>) {
         for (peg, mut render) in pegs.iter_mut() {
-            render.color = match peg.status {
-                PegStatus::NotHit => Color::YELLOW,
-                PegStatus::Hit => Color::GREEN,
+            render.color = peg.typ.into();
+            if let PegStatus::Hit = peg.status {
+                render.color = Color::rgb(
+                    render.color.r() + 0.7,
+                    render.color.g() + 0.7,
+                    render.color.b() + 0.7,
+                );
             }
         }
     }
@@ -96,15 +135,19 @@ impl Peg {
     fn despawn(mut commands: Commands, mut score: ResMut<Score>, pegs: Query<(Entity, &Peg)>) {
         for (entity, peg) in pegs.iter() {
             if let PegStatus::Hit = peg.status {
-                score.points += 1;
+                score.points += peg.points() as u64;
                 commands.entity(entity).despawn_recursive();
             }
         }
     }
+
+    pub fn points(&self) -> u32 {
+        self.typ.points()
+    }
 }
 
 pub(crate) struct CurrentLevel {
-    spawn: fn(&mut Commands),
+    spawn: fn(&mut Commands) -> Vec<Entity>,
 }
 
 pub(crate) struct CurrentBalls(u32);
