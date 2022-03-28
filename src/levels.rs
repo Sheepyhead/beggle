@@ -103,7 +103,11 @@ impl Default for Peg {
 }
 
 impl Peg {
-    fn hit(mut events: EventReader<ContactEvent>, mut pegs: Query<&mut Peg>) {
+    fn hit(
+        mut events: EventReader<ContactEvent>,
+        mut score: ResMut<Score>,
+        mut pegs: Query<&mut Peg>,
+    ) {
         for event in events.iter() {
             if let ContactEvent::Started(h1, h2) = event {
                 let mut peg = pegs.get_mut(h1.entity());
@@ -112,6 +116,7 @@ impl Peg {
                 }
                 if let Ok(mut peg) = peg {
                     if let PegStatus::NotHit = peg.status {
+                        score.points += peg.points() as u64;
                         peg.status = PegStatus::Hit;
                     }
                 }
@@ -132,10 +137,9 @@ impl Peg {
         }
     }
 
-    fn despawn(mut commands: Commands, mut score: ResMut<Score>, pegs: Query<(Entity, &Peg)>) {
+    fn despawn(mut commands: Commands, pegs: Query<(Entity, &Peg)>) {
         for (entity, peg) in pegs.iter() {
             if let PegStatus::Hit = peg.status {
-                score.points += peg.points() as u64;
                 commands.entity(entity).despawn_recursive();
             }
         }
@@ -150,6 +154,7 @@ pub(crate) struct CurrentLevel {
     spawn: fn(&mut Commands) -> Vec<Entity>,
 }
 
+#[derive(Clone, Copy)]
 pub(crate) struct CurrentBalls(u32);
 
 impl Default for CurrentBalls {
@@ -185,4 +190,10 @@ pub enum LevelState {
 #[derive(Default)]
 pub struct Score {
     pub points: u64,
+}
+
+impl fmt::Display for Score {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.points.fmt(f)
+    }
 }
