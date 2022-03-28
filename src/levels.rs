@@ -15,7 +15,8 @@ pub struct Levels;
 
 impl Plugin for Levels {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Game).with_system(spawn_level))
+        app.add_state(LevelState::Aiming)
+            .add_system_set(SystemSet::on_enter(GameState::Game).with_system(spawn_level))
             .add_system_set(
                 SystemSet::on_update(GameState::Game)
                     .with_system(Peg::hit)
@@ -99,4 +100,10 @@ impl fmt::Display for CurrentBalls {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum LevelState {
+    Aiming,
+    Dropping,
 }

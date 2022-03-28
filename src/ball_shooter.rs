@@ -1,4 +1,8 @@
-use crate::{levels::CurrentBalls, workarounds::clear_mouse_input_events, GameState, MainCamera};
+use crate::{
+    levels::{CurrentBalls, LevelState},
+    workarounds::clear_mouse_input_events,
+    GameState, MainCamera,
+};
 use bevy::{
     input::{mouse::MouseButtonInput, ElementState},
     math::Vec3Swizzles,
@@ -96,17 +100,18 @@ impl BallShooter {
     fn shoot_ball(
         mut commands: Commands,
         mut current_balls: ResMut<CurrentBalls>,
+        mut level_state: ResMut<State<LevelState>>,
         mut events: EventReader<MouseButtonInput>,
         shooters: Query<&mut GlobalTransform, With<BallShooter>>,
-        balls: Query<(), With<Ball>>,
     ) {
-        for event in events.iter() {
-            if let MouseButtonInput {
-                button: MouseButton::Left,
-                state: ElementState::Pressed,
-            } = event
-            {
-                if balls.iter().count() == 0 && current_balls.has_any() {
+        if let LevelState::Aiming = level_state.current() {
+            for event in events.iter() {
+                if let MouseButtonInput {
+                    button: MouseButton::Left,
+                    state: ElementState::Pressed,
+                } = event
+                {
+                    level_state.set(LevelState::Dropping).unwrap();
                     current_balls.decrement();
                     for shooter in shooters.iter() {
                         let angle = shooter.rotation.to_euler(EulerRot::XYZ).2 - PI / 2.0;
@@ -155,12 +160,19 @@ pub(crate) struct Ball;
 impl Ball {
     fn despawn(
         mut commands: Commands,
+        mut level_state: ResMut<State<LevelState>>,
         balls: Query<(Entity, &RigidBodyPositionComponent), With<Ball>>,
     ) {
+        let mut despawned = 0;
         for (ball, pos) in balls.iter() {
             if pos.position.translation.y <= -360.0 {
                 commands.entity(ball).despawn_recursive();
+                despawned += 1;
             }
+        }
+
+        if despawned > 0 && despawned >= balls.iter().count() {
+            level_state.set(LevelState::Aiming).unwrap();
         }
     }
 }
