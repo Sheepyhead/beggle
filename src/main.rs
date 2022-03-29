@@ -6,12 +6,14 @@ use bevy_editor_pls::EditorPlugin;
 use bevy_rapier2d::prelude::*;
 use game_over::GameOver;
 use gui::Gui;
+use level_select::LevelSelect;
 use levels::Levels;
 use main_menu::MainMenu;
 
 mod ball_shooter;
 mod game_over;
 mod gui;
+mod level_select;
 mod levels;
 mod main_menu;
 mod workarounds;
@@ -26,6 +28,7 @@ fn main() {
         .add_plugin(MainMenu)
         .add_plugin(BallShooter)
         .add_plugin(Levels)
+        .add_plugin(LevelSelect)
         .add_plugin(Gui)
         .add_plugin(GameOver)
         .add_state(GameState::MainMenu)
@@ -47,6 +50,7 @@ fn setup_camera(mut commands: Commands, mut color: ResMut<ClearColor>) {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 enum GameState {
     MainMenu,
+    LevelSelect,
     Game,
     GameOver,
 }

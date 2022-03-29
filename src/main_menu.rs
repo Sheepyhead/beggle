@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use crate::{GameState, levels::{CurrentLevel, level1::Level1}};
+use crate::GameState;
 
 #[derive(Component)]
 pub(crate) struct MainMenu;
@@ -126,7 +126,6 @@ impl MainMenu {
     }
 
     fn handle_buttons(
-        mut commands: Commands,
         mut game_state: ResMut<State<GameState>>,
         mut events: EventWriter<AppExit>,
         butts: Query<(&MainMenuButton, &Interaction), Changed<Interaction>>,
@@ -134,8 +133,7 @@ impl MainMenu {
         for butt in butts.iter() {
             match butt {
                 (MainMenuButton::Play, Interaction::Clicked) => {
-                    commands.insert_resource::<CurrentLevel>(Level1.into());
-                    game_state.set(GameState::Game).unwrap();
+                    game_state.set(GameState::LevelSelect).unwrap();
                 }
                 (MainMenuButton::Play, Interaction::Hovered) => {}
                 (MainMenuButton::Exit, Interaction::Clicked) => events.send(AppExit),

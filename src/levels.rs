@@ -9,6 +9,8 @@ use crate::{
     GameState,
 };
 
+use self::level1::Level1;
+
 pub mod level1;
 
 pub struct Levels;
@@ -150,8 +152,20 @@ impl Peg {
     }
 }
 
+#[derive(Clone, Copy)]
 pub(crate) struct CurrentLevel {
     spawn: fn(&mut Commands) -> Vec<Entity>,
+}
+
+impl TryInto<CurrentLevel> for u32 {
+    type Error = ();
+
+    fn try_into(self) -> Result<CurrentLevel, Self::Error> {
+        match self {
+            1 => Ok(Level1.into()),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
