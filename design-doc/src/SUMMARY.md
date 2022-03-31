@@ -1,5 +1,7 @@
 # Summary
 
+[Introduction](./introduction.md)
+
 - [Views](./views.md)
   - [Main Menu](./views/main_menu.md)
 - [Mechanics](./mechanics.md)
