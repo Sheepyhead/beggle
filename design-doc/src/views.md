@@ -1,0 +1,2 @@
+# Views
+This section details the various views this game will contain. Each view can be thought of as a contiguous screen with no hard cuts. It may exceed the dimensions of the screen, but only through natural movements like pans, orbits, zooms, etc.
