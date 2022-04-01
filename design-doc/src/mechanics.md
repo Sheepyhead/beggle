@@ -32,3 +32,4 @@ You are an adventurer exploring a dungeon, and you have to kill enemies and avoi
 - Loot pegs are a good idea. Make em spawn when you kill a monster?
 - How do you manage how many balls you can shoot per room? Health bar/energy cost per ball? Counterattack from still living monsters?
 - Dying/running out of balls should yeet you out of the dungeon with a penalty in terms of xp. Probably not loot cause losing loot sucks
+- Combos arise from hitting multiple pegs with the same ball, may have an effect on damage, effects, etc., based on what your build has. Should it have any default effects? Maybe a slight damage and speed boost a la rampage in Path of Exile? Could be handled by upping the bounciness of the ball every time the combo increases, or at breakpoints

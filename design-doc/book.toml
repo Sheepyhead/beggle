@@ -3,4 +3,4 @@ authors = ["Troels Peter Jessen"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Unnamed peggle ripoff roguelike"
+title = "Unnamed peggle ripoff dungeon crawler"
