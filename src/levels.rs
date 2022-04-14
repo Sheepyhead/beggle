@@ -1,6 +1,7 @@
 use std::fmt;
 
 use bevy::prelude::*;
+use bevy_hanabi::ParticleEffect;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
@@ -22,7 +23,7 @@ impl Plugin for Levels {
             .add_system_set(
                 SystemSet::on_update(GameState::Game)
                     .with_system(Peg::hit)
-                    .with_system(Peg::recolor_on_hit),
+                    .with_system(Peg::ball_hits_peg),
             )
             .add_system_set(SystemSet::on_exit(GameState::Game).with_system(despawn_level))
             .add_system_set(SystemSet::on_exit(LevelState::Dropping).with_system(Peg::despawn));
@@ -108,7 +109,8 @@ impl Peg {
     fn hit(
         mut events: EventReader<ContactEvent>,
         mut score: ResMut<Score>,
-        mut pegs: Query<&mut Peg>,
+        mut effect: Query<(&mut ParticleEffect, &mut Transform), Without<Peg>>,
+        mut pegs: Query<(&mut Peg, &RigidBodyPositionComponent)>,
     ) {
         for event in events.iter() {
             if let ContactEvent::Started(h1, h2) = event {
@@ -116,17 +118,23 @@ impl Peg {
                 if peg.is_err() {
                     peg = pegs.get_mut(h2.entity());
                 }
-                if let Ok(mut peg) = peg {
+                if let Ok((mut peg, transform)) = peg {
                     if let PegStatus::NotHit = peg.status {
                         score.points += peg.points() as u64;
                         peg.status = PegStatus::Hit;
+                        let (mut effect, mut effect_transform) = effect.single_mut();
+                   
+                        effect_transform.translation = Vec2::from(transform.position.translation)
+                            .extend(effect_transform.translation.z);
+                        // Spawn the particles
+                        effect.maybe_spawner().unwrap().reset();
                     }
                 }
             }
         }
     }
 
-    fn recolor_on_hit(mut pegs: Query<(&Peg, &mut ColliderDebugRender), Changed<Peg>>) {
+    fn ball_hits_peg(mut pegs: Query<(&Peg, &mut ColliderDebugRender), Changed<Peg>>) {
         for (peg, mut render) in pegs.iter_mut() {
             render.color = peg.typ.into();
             if let PegStatus::Hit = peg.status {

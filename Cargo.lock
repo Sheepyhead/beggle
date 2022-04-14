@@ -184,6 +184,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_editor_pls",
+ "bevy_hanabi",
  "bevy_rapier2d",
  "fastrand",
 ]
@@ -475,6 +476,21 @@ dependencies = [
  "gltf",
  "percent-encoding",
  "thiserror",
+]
+
+[[package]]
+name = "bevy_hanabi"
+version = "0.1.2"
+source = "git+https://github.com/djeedai/bevy_hanabi?rev=0e1df4d#0e1df4d9f712907e1c1ae10f77478221247f7f72"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bitflags",
+ "bytemuck",
+ "rand",
+ "rand_pcg",
+ "ron",
+ "serde",
 ]
 
 [[package]]
@@ -2745,6 +2761,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
  "getrandom",
+]
+
+[[package]]
+name = "rand_pcg"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59cad018caf63deb318e5a4586d99a24424a364f40f1e5778c29aca23f4fc73e"
+dependencies = [
+ "rand_core",
 ]
 
 [[package]]
